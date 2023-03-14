@@ -1,0 +1,26 @@
+.App {
+  text-align: center;
+  font-size: 30px;
+}
+
+.taskList-taskFinished {
+  color: lightgray;
+  text-decoration: line-through;
+}
+
+ul button {
+  margin-left: 30px;
+  margin-right: 30px;
+  background-color: darkblue;
+  color: yellow;
+
+  border-radius: 5px;
+}
+
+body {
+  color: green;
+  /* background-color: black; */
+}
+
+
+
