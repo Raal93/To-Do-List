@@ -2,11 +2,11 @@ import React from "react";
 import "./App.css";
 
 const MarkTaskFinishedBtn = (props) => {
-  const { keyValue, taskListProperties, markTaskFinished } = props;
+  const { task, taskListProperties, markTaskFinished } = props;
   return (
     <button
       type="button"
-      onClick={() => markTaskFinished(keyValue, taskListProperties)}
+      onClick={() => markTaskFinished(task.id, taskListProperties)}
     >
       O
     </button>
@@ -14,11 +14,11 @@ const MarkTaskFinishedBtn = (props) => {
 };
 
 const DeleteTaskBtn = (props) => {
-  const { keyValue, taskListProperties, deleteTask } = props;
+  const { task, taskListProperties, deleteTask } = props;
   return (
     <button
       type="button"
-      onClick={() => deleteTask(keyValue, taskListProperties)}
+      onClick={() => deleteTask(task.id, taskListProperties)}
     >
       X
     </button>
@@ -26,9 +26,9 @@ const DeleteTaskBtn = (props) => {
 };
 
 const SingleTask = (props) => {
-  const { keyValue } = props;
+  const { id } = props.task;
   return (
-    <li key={keyValue}>
+    <li key={id}>
       <MarkTaskFinishedBtn {...props} />
       <TaskTextEditSwitch {...props} />
       <DeleteTaskBtn {...props} />
@@ -38,7 +38,7 @@ const SingleTask = (props) => {
 
 class TaskTextEditSwitch extends React.Component {
   state = {
-    taskEditInput: this.props.text,
+    taskEditInput: this.props.task.text,
   };
 
   handleChange = (e) => {
@@ -48,19 +48,17 @@ class TaskTextEditSwitch extends React.Component {
   };
 
   handleKeyDown = (e) => {
-    const { id, taskListProperties, switchShowTaskText } = this.props;
+    const { task, taskListProperties, switchShowTaskText } = this.props;
     const { taskEditInput } = this.state;
 
     if (e.key === "Enter") {
-      switchShowTaskText(taskListProperties, id, taskEditInput);
+      switchShowTaskText(taskListProperties, task.id, taskEditInput);
     }
   };
 
   render() {
     const {
-      id,
-      isFinished,
-      text,
+      task,
       switchShowEditor,
       taskListProperties,
       showEditor,
@@ -76,17 +74,19 @@ class TaskTextEditSwitch extends React.Component {
         name="taskEditInput"
         onChange={handleChange}
         value={taskEditInput}
-        onBlur={() => switchShowTaskText(taskListProperties, id, taskEditInput)}
+        onBlur={() =>
+          switchShowTaskText(taskListProperties, task.id, taskEditInput)
+        }
         onKeyDown={(e) => {
           this.handleKeyDown(e);
         }}
       />
     ) : (
       <span
-        className={isFinished ? "taskList-taskFinished" : ""}
-        onDoubleClick={() => switchShowEditor(taskListProperties, id)}
+        className={task.isFinished ? "taskList-taskFinished" : ""}
+        onDoubleClick={() => switchShowEditor(taskListProperties, task.id)}
       >
-        {text}
+        {task.text}
       </span>
     );
   }
@@ -136,75 +136,48 @@ class App extends React.Component {
     });
   };
 
-  displayTaskList = (taskListProperties, displayQualifer) => {
-    if (displayQualifer === "all") {
-      return taskListProperties.map((task, taskIndex) => {
-        return (
-          <SingleTask
-            id={task.id}
-            text={task.text}
-            isFinished={task.isFinished}
-            showEditor={task.showEditor}
-            keyValue={taskIndex}
-            key={taskIndex}
-            taskListProperties={taskListProperties}
-            markTaskFinished={this.markTaskFinished}
-            deleteTask={this.deleteTask}
-            switchShowEditor={this.switchShowEditor}
-            switchShowTaskText={this.switchShowTaskText}
-          />
-        );
-      });
+  displayTaskListAlternative = (taskListProperties, displayQualifer) => {
+    let currentDisplayList = [];
+
+    switch (displayQualifer) {
+      case "all":
+        currentDisplayList = [...taskListProperties];
+        break;
+      case "active":
+        taskListProperties.map((task) => {
+          if (task.isFinished === false) currentDisplayList.push(task);
+        });
+        break;
+      case "completed":
+        taskListProperties.map((task) => {
+          if (task.isFinished === true) currentDisplayList.push(task);
+        });
+        break;
     }
-    if (displayQualifer === "active") {
-      return taskListProperties.map((task, taskIndex) => {
-        if (task.isFinished === false) {
-          return (
-            <SingleTask
-              id={task.id}
-              text={task.text}
-              isFinished={task.isFinished}
-              showEditor={task.showEditor}
-              keyValue={taskIndex}
-              key={taskIndex}
-              taskListProperties={taskListProperties}
-              markTaskFinished={this.markTaskFinished}
-              deleteTask={this.deleteTask}
-              switchShowEditor={this.switchShowEditor}
-              switchShowTaskText={this.switchShowTaskText}
-            />
-          );
-        }
-      });
-    }
-    if (displayQualifer === "completed") {
-      return taskListProperties.map((task, taskIndex) => {
-        if (task.isFinished === true) {
-          return (
-            <SingleTask
-              id={task.id}
-              text={task.text}
-              isFinished={task.isFinished}
-              showEditor={task.showEditor}
-              keyValue={taskIndex}
-              key={taskIndex}
-              taskListProperties={taskListProperties}
-              markTaskFinished={this.markTaskFinished}
-              deleteTask={this.deleteTask}
-              switchShowEditor={this.switchShowEditor}
-              switchShowTaskText={this.switchShowTaskText}
-            />
-          );
-        }
-      });
-    }
+    return this.displayCurrentTaskList(currentDisplayList);
+  };
+
+  displayCurrentTaskList = (currentDisplayList) => {
+    return currentDisplayList.map((task) => {
+      return (
+        <SingleTask
+          task={task}
+          key={task.id}
+          taskListProperties={this.state.taskListProperties}
+          markTaskFinished={this.markTaskFinished}
+          deleteTask={this.deleteTask}
+          switchShowEditor={this.switchShowEditor}
+          switchShowTaskText={this.switchShowTaskText}
+        />
+      );
+    });
   };
 
   markTaskFinished = (taskIndex, taskListProperties) => {
     const newTaskListProperties = taskListProperties.map((task, index) => {
-      return index === taskIndex
-        ? { text: task.text, isFinished: !task.isFinished }
-        : { text: task.text, isFinished: task.isFinished };
+      task.isFinished =
+        index === taskIndex ? !task.isFinished : task.isFinished;
+      return task;
     });
     const tasksLeft = this.calcTasksLeft(newTaskListProperties); // count tasks left
     this.setState({
@@ -246,26 +219,10 @@ class App extends React.Component {
   };
 
   switchAllTasks = (taskListProperties) => {
-    //1. check the state of tasks:
-    // a) all are done
-    // then change all to undone
-
-    // b) some of them are not done & c) all are not done
-    // then change all to done
-    //2. save a new state
-
-    let isAllTaskDone = 1;
+    const { ifAllTaskDoneF } = this;
     let newTaskListProperties;
 
-    taskListProperties.map((task) => {
-      if (task.isFinished === true) {
-        isAllTaskDone += 1;
-      } else {
-        isAllTaskDone = -9999;
-      }
-    });
-
-    if (isAllTaskDone > 0) {
+    if (ifAllTaskDoneF(taskListProperties)) {
       newTaskListProperties = taskListProperties.map((task) => {
         task.isFinished = false;
         return task;
@@ -282,6 +239,15 @@ class App extends React.Component {
       taskListProperties: newTaskListProperties,
       tasksLeft: tasksLeft,
     });
+  };
+
+  ifAllTaskDoneF = (taskList) => {
+    // return true if all tasks are done | return false when at least task is undone
+    let flag = true;
+    taskList.map((task) => {
+      if (task.isFinished === false) flag = false;
+    });
+    return flag;
   };
 
   setDisplayQualifer = (displayQualifer) => {
@@ -301,17 +267,12 @@ class App extends React.Component {
     });
   };
 
-  openEditField = (taskListProperties) => {
-    console.log("rozpoczac edycje taska");
-    return <input type="text"></input>;
-  };
-
   render() {
     const {
       handleSubmit,
       switchAllTasks,
       handleChange,
-      displayTaskList,
+      displayTaskListAlternative,
       calcTasksLeft,
       setDisplayQualifer,
       clearCompleted,
@@ -335,7 +296,9 @@ class App extends React.Component {
             value={inputText}
             onChange={handleChange}
           ></input>
-          <ul>{displayTaskList(taskListProperties, displayQualifer)}</ul>
+          <ul>
+            {displayTaskListAlternative(taskListProperties, displayQualifer)}
+          </ul>
           <h6>{calcTasksLeft(taskListProperties)} items left</h6>
           <button type="button" onClick={() => setDisplayQualifer("all")}>
             All
