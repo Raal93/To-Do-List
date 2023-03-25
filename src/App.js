@@ -3,18 +3,18 @@ import "./App.css";
 import TaskTextEditSwitch from "./TaskTextEditSwitch";
 
 const MarkTaskFinishedBtn = (props) => {
-  const { task, taskList, markTaskFinished } = props;
+  const { task, markTaskFinished } = props;
   return (
-    <button type="button" onClick={() => markTaskFinished(task.id, taskList)}>
+    <button type="button" onClick={() => markTaskFinished(task.id)}>
       O
     </button>
   );
 };
 
 const DeleteTaskBtn = (props) => {
-  const { task, taskList, deleteTask } = props;
+  const { task, deleteTask } = props;
   return (
-    <button type="button" onClick={() => deleteTask(task.id, taskList)}>
+    <button type="button" onClick={() => deleteTask(task.id)}>
       X
     </button>
   );
@@ -44,19 +44,23 @@ class App extends React.Component {
     ],
   };
 
-  switchShowEditor = (taskList, id) => {
-    const newtaskList = taskList.map((task) => {
+  showTaskEditor = (id) => {
+    const taskList = this.state.taskList;
+
+    const newTaskList = taskList.map((task) => {
       task.showEditor = task.id === id ? !task.showEditor : false;
       return task;
     });
 
     this.setState({
-      taskList: newtaskList,
+      taskList: newTaskList,
     });
   };
 
-  switchShowTaskText = (taskList, id, editedTask) => {
-    const newtaskList = taskList.map((task) => {
+  showTask = (id, editedTask) => {
+    const taskList = this.state.taskList;
+
+    const newTaskList = taskList.map((task) => {
       if (task.id === id) {
         task.showEditor = !task.showEditor;
         task.text = editedTask;
@@ -65,7 +69,7 @@ class App extends React.Component {
     });
 
     this.setState({
-      taskList: newtaskList,
+      taskList: newTaskList,
     });
   };
 
@@ -75,7 +79,8 @@ class App extends React.Component {
     });
   };
 
-  displayTaskListAlternative = (taskList, displayQualifer) => {
+  displayTaskList = (taskList, displayQualifer) => {
+    // make an extra function (?)
     let currentDisplayList = [];
 
     switch (displayQualifer) {
@@ -105,28 +110,32 @@ class App extends React.Component {
           taskList={this.state.taskList}
           markTaskFinished={this.markTaskFinished}
           deleteTask={this.deleteTask}
-          switchShowEditor={this.switchShowEditor}
-          switchShowTaskText={this.switchShowTaskText}
+          showTaskEditor={this.showTaskEditor}
+          showTask={this.showTask}
         />
       );
     });
   };
 
-  markTaskFinished = (taskIndex, taskList) => {
-    const newtaskList = taskList.map((task, index) => {
-      task.isFinished =
-        index === taskIndex ? !task.isFinished : task.isFinished;
+  markTaskFinished = (taskId) => {
+    const taskList = this.state.taskList;
+
+    const newTaskList = taskList.map((task, id) => {
+      task.isFinished = id === taskId ? !task.isFinished : task.isFinished;
       return task;
     });
-    const tasksLeft = this.calcTasksLeft(newtaskList); // count tasks left
+    const tasksLeft = this.calcTasksLeft(newTaskList); // count tasks left
+
     this.setState({
-      taskList: newtaskList,
+      taskList: newTaskList,
       tasksLeft: tasksLeft,
     });
   };
 
-  deleteTask = (taskIndex, taskList) => {
-    taskList.splice(taskIndex, 1); // delete a task
+  deleteTask = (taskId) => {
+    const taskList = this.state.taskList;
+
+    taskList.splice(taskId, 1); // delete a task
     const tasksLeft = this.calcTasksLeft(taskList); // count tasks left
     this.setState({
       taskList: taskList,
@@ -134,8 +143,10 @@ class App extends React.Component {
     });
   };
 
-  handleSubmit = (e, inputText) => {
+  handleSubmit = (e) => {
     e.preventDefault();
+    const { inputText } = this.state;
+
     const setId = this.state.taskList.length;
     const taskListN = this.state.taskList.concat([
       { id: setId, text: inputText, isFinished: false }, // add a task
@@ -148,7 +159,6 @@ class App extends React.Component {
     });
   };
 
-  // // strange variable name: taskList
   calcTasksLeft = (taskList) => {
     let taskCounter = 0;
     taskList.map((task) => {
@@ -157,25 +167,26 @@ class App extends React.Component {
     return taskCounter;
   };
 
-  switchAllTasks = (taskList) => {
+  switchAllTasks = () => {
+    const taskList = this.state.taskList;
     const { ifAllTaskDoneF } = this;
-    let newtaskList;
+    let newTaskList;
 
     if (ifAllTaskDoneF(taskList)) {
-      newtaskList = taskList.map((task) => {
+      newTaskList = taskList.map((task) => {
         task.isFinished = false;
         return task;
       }); // set all tasks undone
     } else {
-      newtaskList = taskList.map((task) => {
+      newTaskList = taskList.map((task) => {
         task.isFinished = true;
         return task;
       }); // set all tasks done
     }
-    const tasksLeft = this.calcTasksLeft(newtaskList); // count tasks left
+    const tasksLeft = this.calcTasksLeft(newTaskList); // count tasks left
 
     this.setState({
-      taskList: newtaskList,
+      taskList: newTaskList,
       tasksLeft: tasksLeft,
     });
   };
@@ -195,8 +206,10 @@ class App extends React.Component {
     });
   };
 
-  clearCompleted = (taskList) => {
+  clearCompletedTasks = () => {
+    const taskList = this.state.taskList;
     let clearedTaskList = [];
+
     taskList.map((task) => {
       if (task.isFinished === false) clearedTaskList.push(task);
     });
@@ -211,18 +224,18 @@ class App extends React.Component {
       handleSubmit,
       switchAllTasks,
       handleChange,
-      displayTaskListAlternative,
+      displayTaskList,
       calcTasksLeft,
       setDisplayQualifer,
-      clearCompleted,
+      clearCompletedTasks,
     } = this;
     const { inputText, taskList, displayQualifer } = this.state;
 
     return (
       <div className="App">
-        <form onSubmit={(e) => handleSubmit(e, inputText)}>
+        <form onSubmit={(e) => handleSubmit(e)}>
           <h1>todos</h1>
-          <button type="button" onClick={() => switchAllTasks(taskList)}>
+          <button type="button" onClick={switchAllTasks}>
             V
           </button>
           <input
@@ -232,7 +245,7 @@ class App extends React.Component {
             value={inputText}
             onChange={handleChange}
           ></input>
-          <ul>{displayTaskListAlternative(taskList, displayQualifer)}</ul>
+          <ul>{displayTaskList(taskList, displayQualifer)}</ul>
           <h6>{calcTasksLeft(taskList)} items left</h6>
           <button type="button" onClick={() => setDisplayQualifer("all")}>
             All
@@ -243,7 +256,7 @@ class App extends React.Component {
           <button type="button" onClick={() => setDisplayQualifer("completed")}>
             Completed
           </button>
-          <button type="button" onClick={() => clearCompleted(taskList)}>
+          <button type="button" onClick={clearCompletedTasks}>
             Clear completed
           </button>
         </form>
