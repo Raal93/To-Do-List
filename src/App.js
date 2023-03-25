@@ -3,24 +3,18 @@ import "./App.css";
 import TaskTextEditSwitch from "./TaskTextEditSwitch";
 
 const MarkTaskFinishedBtn = (props) => {
-  const { task, taskListProperties, markTaskFinished } = props;
+  const { task, taskList, markTaskFinished } = props;
   return (
-    <button
-      type="button"
-      onClick={() => markTaskFinished(task.id, taskListProperties)}
-    >
+    <button type="button" onClick={() => markTaskFinished(task.id, taskList)}>
       O
     </button>
   );
 };
 
 const DeleteTaskBtn = (props) => {
-  const { task, taskListProperties, deleteTask } = props;
+  const { task, taskList, deleteTask } = props;
   return (
-    <button
-      type="button"
-      onClick={() => deleteTask(task.id, taskListProperties)}
-    >
+    <button type="button" onClick={() => deleteTask(task.id, taskList)}>
       X
     </button>
   );
@@ -43,26 +37,26 @@ class App extends React.Component {
     tasksLeft: 3,
     displayQualifer: "all",
     taskEditInput: "",
-    taskListProperties: [
+    taskList: [
       { id: 0, text: "example task 1", isFinished: false, showEditor: false },
       { id: 1, text: "task 2", isFinished: true, showEditor: false },
       { id: 2, text: "example 3", isFinished: false, showEditor: false },
     ],
   };
 
-  switchShowEditor = (taskListProperties, id) => {
-    const newTaskListProperties = taskListProperties.map((task) => {
+  switchShowEditor = (taskList, id) => {
+    const newtaskList = taskList.map((task) => {
       task.showEditor = task.id === id ? !task.showEditor : false;
       return task;
     });
 
     this.setState({
-      taskListProperties: newTaskListProperties,
+      taskList: newtaskList,
     });
   };
 
-  switchShowTaskText = (taskListProperties, id, editedTask) => {
-    const newTaskListProperties = taskListProperties.map((task) => {
+  switchShowTaskText = (taskList, id, editedTask) => {
+    const newtaskList = taskList.map((task) => {
       if (task.id === id) {
         task.showEditor = !task.showEditor;
         task.text = editedTask;
@@ -71,7 +65,7 @@ class App extends React.Component {
     });
 
     this.setState({
-      taskListProperties: newTaskListProperties,
+      taskList: newtaskList,
     });
   };
 
@@ -81,20 +75,20 @@ class App extends React.Component {
     });
   };
 
-  displayTaskListAlternative = (taskListProperties, displayQualifer) => {
+  displayTaskListAlternative = (taskList, displayQualifer) => {
     let currentDisplayList = [];
 
     switch (displayQualifer) {
       case "all":
-        currentDisplayList = [...taskListProperties];
+        currentDisplayList = [...taskList];
         break;
       case "active":
-        taskListProperties.map((task) => {
+        taskList.map((task) => {
           if (task.isFinished === false) currentDisplayList.push(task);
         });
         break;
       case "completed":
-        taskListProperties.map((task) => {
+        taskList.map((task) => {
           if (task.isFinished === true) currentDisplayList.push(task);
         });
         break;
@@ -108,7 +102,7 @@ class App extends React.Component {
         <SingleTask
           task={task}
           key={task.id}
-          taskListProperties={this.state.taskListProperties}
+          taskList={this.state.taskList}
           markTaskFinished={this.markTaskFinished}
           deleteTask={this.deleteTask}
           switchShowEditor={this.switchShowEditor}
@@ -118,70 +112,70 @@ class App extends React.Component {
     });
   };
 
-  markTaskFinished = (taskIndex, taskListProperties) => {
-    const newTaskListProperties = taskListProperties.map((task, index) => {
+  markTaskFinished = (taskIndex, taskList) => {
+    const newtaskList = taskList.map((task, index) => {
       task.isFinished =
         index === taskIndex ? !task.isFinished : task.isFinished;
       return task;
     });
-    const tasksLeft = this.calcTasksLeft(newTaskListProperties); // count tasks left
+    const tasksLeft = this.calcTasksLeft(newtaskList); // count tasks left
     this.setState({
-      taskListProperties: newTaskListProperties,
+      taskList: newtaskList,
       tasksLeft: tasksLeft,
     });
   };
 
-  deleteTask = (taskIndex, taskListProperties) => {
-    taskListProperties.splice(taskIndex, 1); // delete a task
-    const tasksLeft = this.calcTasksLeft(taskListProperties); // count tasks left
+  deleteTask = (taskIndex, taskList) => {
+    taskList.splice(taskIndex, 1); // delete a task
+    const tasksLeft = this.calcTasksLeft(taskList); // count tasks left
     this.setState({
-      taskListProperties: taskListProperties,
+      taskList: taskList,
       tasksLeft: tasksLeft,
     });
   };
 
   handleSubmit = (e, inputText) => {
     e.preventDefault();
-    const setId = this.state.taskListProperties.length;
-    const taskListPropertiesN = this.state.taskListProperties.concat([
+    const setId = this.state.taskList.length;
+    const taskListN = this.state.taskList.concat([
       { id: setId, text: inputText, isFinished: false }, // add a task
     ]);
-    const tasksLeft = this.calcTasksLeft(taskListPropertiesN); // count tasks left
+    const tasksLeft = this.calcTasksLeft(taskListN); // count tasks left
     this.setState({
       inputText: "",
-      taskListProperties: taskListPropertiesN,
+      taskList: taskListN,
       tasksLeft: tasksLeft,
     });
   };
 
-  // // strange variable name: taskListProperties
-  calcTasksLeft = (taskListProperties) => {
+  // // strange variable name: taskList
+  calcTasksLeft = (taskList) => {
     let taskCounter = 0;
-    taskListProperties.map((task) => {
+    taskList.map((task) => {
       taskCounter = task.isFinished === false ? taskCounter + 1 : taskCounter;
     });
     return taskCounter;
   };
 
-  switchAllTasks = (taskListProperties) => {
+  switchAllTasks = (taskList) => {
     const { ifAllTaskDoneF } = this;
-    let newTaskListProperties;
+    let newtaskList;
 
-    if (ifAllTaskDoneF(taskListProperties)) {
-      newTaskListProperties = taskListProperties.map((task) => {
+    if (ifAllTaskDoneF(taskList)) {
+      newtaskList = taskList.map((task) => {
         task.isFinished = false;
         return task;
       }); // set all tasks undone
     } else {
-      newTaskListProperties = taskListProperties.map((task) => {
+      newtaskList = taskList.map((task) => {
         task.isFinished = true;
         return task;
       }); // set all tasks done
     }
-    const tasksLeft = this.calcTasksLeft(newTaskListProperties); // count tasks left
+    const tasksLeft = this.calcTasksLeft(newtaskList); // count tasks left
 
     this.setState({
-      taskListProperties: newTaskListProperties,
+      taskList: newtaskList,
       tasksLeft: tasksLeft,
     });
   };
@@ -201,14 +195,14 @@ class App extends React.Component {
     });
   };
 
-  clearCompleted = (taskListProperties) => {
+  clearCompleted = (taskList) => {
     let clearedTaskList = [];
-    taskListProperties.map((task) => {
+    taskList.map((task) => {
       if (task.isFinished === false) clearedTaskList.push(task);
     });
 
     this.setState({
-      taskListProperties: clearedTaskList,
+      taskList: clearedTaskList,
     });
   };
 
@@ -222,16 +216,13 @@ class App extends React.Component {
       setDisplayQualifer,
       clearCompleted,
     } = this;
-    const { inputText, taskListProperties, displayQualifer } = this.state;
+    const { inputText, taskList, displayQualifer } = this.state;
 
     return (
       <div className="App">
         <form onSubmit={(e) => handleSubmit(e, inputText)}>
           <h1>todos</h1>
-          <button
-            type="button"
-            onClick={() => switchAllTasks(taskListProperties)}
-          >
+          <button type="button" onClick={() => switchAllTasks(taskList)}>
             V
           </button>
           <input
@@ -241,10 +232,8 @@ class App extends React.Component {
             value={inputText}
             onChange={handleChange}
           ></input>
-          <ul>
-            {displayTaskListAlternative(taskListProperties, displayQualifer)}
-          </ul>
-          <h6>{calcTasksLeft(taskListProperties)} items left</h6>
+          <ul>{displayTaskListAlternative(taskList, displayQualifer)}</ul>
+          <h6>{calcTasksLeft(taskList)} items left</h6>
           <button type="button" onClick={() => setDisplayQualifer("all")}>
             All
           </button>
@@ -254,10 +243,7 @@ class App extends React.Component {
           <button type="button" onClick={() => setDisplayQualifer("completed")}>
             Completed
           </button>
-          <button
-            type="button"
-            onClick={() => clearCompleted(taskListProperties)}
-          >
+          <button type="button" onClick={() => clearCompleted(taskList)}>
             Clear completed
           </button>
         </form>

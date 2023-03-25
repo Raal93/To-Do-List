@@ -13,17 +13,16 @@ class TaskTextEditSwitch extends React.Component {
   };
 
   handleKeyDown = (e) => {
-    const { task, taskListProperties, switchShowTaskText } = this.props;
+    const { task, taskList, switchShowTaskText } = this.props;
     const { taskEditInput } = this.state;
 
     if (e.key === "Enter") {
-      switchShowTaskText(taskListProperties, task.id, taskEditInput);
+      switchShowTaskText(taskList, task.id, taskEditInput);
     }
   };
 
   render() {
-    const { task, switchShowEditor, taskListProperties, switchShowTaskText } =
-      this.props;
+    const { task, switchShowEditor, taskList, switchShowTaskText } = this.props;
     const { taskEditInput } = this.state;
     const { handleChange } = this;
 
@@ -34,9 +33,7 @@ class TaskTextEditSwitch extends React.Component {
         name="taskEditInput"
         onChange={handleChange}
         value={taskEditInput}
-        onBlur={() =>
-          switchShowTaskText(taskListProperties, task.id, taskEditInput)
-        }
+        onBlur={() => switchShowTaskText(taskList, task.id, taskEditInput)}
         onKeyDown={(e) => {
           this.handleKeyDown(e);
         }}
@@ -44,7 +41,7 @@ class TaskTextEditSwitch extends React.Component {
     ) : (
       <span
         className={task.isFinished ? "taskList-taskFinished" : ""}
-        onDoubleClick={() => switchShowEditor(taskListProperties, task.id)}
+        onDoubleClick={() => switchShowEditor(taskList, task.id)}
       >
         {task.text}
       </span>
