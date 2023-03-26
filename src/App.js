@@ -133,14 +133,23 @@ class App extends React.Component {
   };
 
   deleteTask = (taskId) => {
-    const taskList = this.state.taskList;
-
+    let taskList = this.state.taskList;
     taskList.splice(taskId, 1); // delete a task
+    taskList = this.assignId(taskList); // sign new id nums
     const tasksLeft = this.calcTasksLeft(taskList); // count tasks left
+
     this.setState({
       taskList: taskList,
       tasksLeft: tasksLeft,
     });
+  };
+
+  assignId = (taskList) => {
+    taskList.map((task, id) => {
+      task.id = id;
+      return task;
+    });
+    return taskList;
   };
 
   handleSubmit = (e) => {
@@ -148,13 +157,16 @@ class App extends React.Component {
     const { inputText } = this.state;
 
     const setId = this.state.taskList.length;
-    const taskListN = this.state.taskList.concat([
+    const newTaskList = this.state.taskList.concat([
       { id: setId, text: inputText, isFinished: false }, // add a task
     ]);
-    const tasksLeft = this.calcTasksLeft(taskListN); // count tasks left
+    const tasksLeft = this.calcTasksLeft(newTaskList); // count tasks left
+
+    console.log(this.state.taskList);
+
     this.setState({
       inputText: "",
-      taskList: taskListN,
+      taskList: newTaskList,
       tasksLeft: tasksLeft,
     });
   };
