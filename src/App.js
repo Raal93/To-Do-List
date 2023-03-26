@@ -6,7 +6,7 @@ const MarkTaskFinishedBtn = (props) => {
   const { task, markTaskFinished } = props;
   return (
     <button type="button" onClick={() => markTaskFinished(task.id)}>
-      O
+      {task.id + 1}
     </button>
   );
 };
@@ -210,16 +210,21 @@ class App extends React.Component {
       <div className="App">
         <form onSubmit={(e) => handleSubmit(e)}>
           <h1>todos</h1>
-          <button type="button" onClick={switchAllTasks}>
-            V
-          </button>
-          <input
-            name="inputText"
-            type="text"
-            placeholder="What needs to be done?"
-            value={inputText}
-            onChange={handleChange}
-          ></input>
+          <div className="header-input">
+            <button
+              className="switchAllBtn"
+              type="button"
+              onClick={switchAllTasks}
+            ></button>
+            <input
+              className="tasksInput"
+              name="inputText"
+              type="text"
+              placeholder="What needs to be done?"
+              value={inputText}
+              onChange={handleChange}
+            ></input>
+          </div>
           <ul>{manageTaskDisplaying(taskList, displayQualifer)}</ul>
           <h6>{calcTasksLeft(taskList)} items left</h6>
           <button type="button" onClick={() => setDisplayQualifer("all")}>

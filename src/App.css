@@ -1,6 +1,7 @@
 .App {
   text-align: center;
   font-size: 30px;
+  /* background: url("tick-icon.jpg") no-repeat; */
 }
 
 .taskList-taskFinished {
@@ -8,12 +9,52 @@
   text-decoration: line-through;
 }
 
+.header-input {
+  /* background-color: #ccc; */
+  display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.switchAllBtn {
+  height: 50px;
+  width: 50px;
+  background: url('tick-icon.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  border-width: 0.5px;
+  border-color:lightgray;
+  border-radius: 5px;
+  padding: 0;
+  display: inline-block;
+  /* margin-top: 20px; */
+}
+
+.tasksInput {
+  height: 50px;
+  width: 250px;
+  border-radius: 6px;
+  border-color: gray;
+  border-width: 1px;
+  padding-left: 10px;
+  font-size: 18px;
+  display: inline-block;
+  margin-left: 15px;
+}
+
+ul {
+  list-style-type: none;
+}
+
+ul li {
+  text-align: left;
+}
+
 ul button {
   margin-left: 30px;
   margin-right: 30px;
   background-color: darkblue;
   color: yellow;
-
   border-radius: 5px;
 }
 
