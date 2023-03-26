@@ -45,31 +45,21 @@ class App extends React.Component {
   };
 
   showTaskEditor = (id) => {
-    const taskList = this.state.taskList;
-
-    const newTaskList = taskList.map((task) => {
-      task.showEditor = task.id === id ? !task.showEditor : false;
-      return task;
-    });
+    let taskList = this.state.taskList;
+    taskList[id].showEditor = true;
 
     this.setState({
-      taskList: newTaskList,
+      taskList: taskList,
     });
   };
 
-  showTask = (id, editedTask) => {
-    const taskList = this.state.taskList;
-
-    const newTaskList = taskList.map((task) => {
-      if (task.id === id) {
-        task.showEditor = !task.showEditor;
-        task.text = editedTask;
-      }
-      return task;
-    });
+  saveEditedTask = (id, editedText) => {
+    let taskList = this.state.taskList;
+    taskList[id].showEditor = false;
+    taskList[id].text = editedText;
 
     this.setState({
-      taskList: newTaskList,
+      taskList: taskList,
     });
   };
 
@@ -79,137 +69,112 @@ class App extends React.Component {
     });
   };
 
-  displayTaskList = (taskList, displayQualifer) => {
-    // make an extra function (?)
-    let currentDisplayList = [];
-
+  manageTaskDisplaying = (taskList, displayQualifer) => {
     switch (displayQualifer) {
       case "all":
-        currentDisplayList = [...taskList];
         break;
       case "active":
-        taskList.map((task) => {
-          if (task.isFinished === false) currentDisplayList.push(task);
-        });
+        taskList = taskList.filter((task) => task.isFinished === false);
         break;
       case "completed":
-        taskList.map((task) => {
-          if (task.isFinished === true) currentDisplayList.push(task);
-        });
+        taskList = taskList.filter((task) => task.isFinished === true);
         break;
+      default:
+        console.log("unknown display qualifer");
     }
-    return this.displayCurrentTaskList(currentDisplayList);
+    return this.displayTaskList(taskList);
   };
 
-  displayCurrentTaskList = (currentDisplayList) => {
-    return currentDisplayList.map((task) => {
-      return (
-        <SingleTask
-          task={task}
-          key={task.id}
-          taskList={this.state.taskList}
-          markTaskFinished={this.markTaskFinished}
-          deleteTask={this.deleteTask}
-          showTaskEditor={this.showTaskEditor}
-          showTask={this.showTask}
-        />
-      );
-    });
+  displayTaskList = (currentDisplayList) => {
+    return currentDisplayList.map((task) => (
+      <SingleTask
+        task={task}
+        key={task.id}
+        taskList={this.state.taskList}
+        markTaskFinished={this.markTaskFinished}
+        deleteTask={this.deleteTask}
+        showTaskEditor={this.showTaskEditor}
+        saveEditedTask={this.saveEditedTask}
+      />
+    ));
   };
 
-  markTaskFinished = (taskId) => {
-    const taskList = this.state.taskList;
-
-    const newTaskList = taskList.map((task, id) => {
-      task.isFinished = id === taskId ? !task.isFinished : task.isFinished;
-      return task;
-    });
-    const tasksLeft = this.calcTasksLeft(newTaskList); // count tasks left
-
-    this.setState({
-      taskList: newTaskList,
-      tasksLeft: tasksLeft,
-    });
-  };
-
-  deleteTask = (taskId) => {
+  markTaskFinished = (id) => {
+    const { calcTasksLeft } = this;
     let taskList = this.state.taskList;
-    taskList.splice(taskId, 1); // delete a task
-    taskList = this.assignId(taskList); // sign new id nums
-    const tasksLeft = this.calcTasksLeft(taskList); // count tasks left
+    taskList[id].isFinished = !taskList[id].isFinished;
 
     this.setState({
       taskList: taskList,
-      tasksLeft: tasksLeft,
+      tasksLeft: calcTasksLeft(taskList),
     });
   };
 
-  assignId = (taskList) => {
-    taskList.map((task, id) => {
-      task.id = id;
-      return task;
+  deleteTask = (id) => {
+    const { calcTasksLeft } = this;
+    let taskList = this.state.taskList;
+    taskList.splice(id, 1); // delete a task
+    taskList = this.assignNewId(taskList); // sign new id nums
+
+    this.setState({
+      taskList: taskList,
+      tasksLeft: calcTasksLeft(taskList),
     });
+  };
+
+  assignNewId = (taskList) => {
+    taskList.forEach((task, id) => (task.id = id));
     return taskList;
   };
 
   handleSubmit = (e) => {
     e.preventDefault();
     const { inputText } = this.state;
-
+    const { calcTasksLeft } = this;
     const setId = this.state.taskList.length;
-    const newTaskList = this.state.taskList.concat([
-      { id: setId, text: inputText, isFinished: false }, // add a task
-    ]);
-    const tasksLeft = this.calcTasksLeft(newTaskList); // count tasks left
-
-    console.log(this.state.taskList);
+    let taskList = this.state.taskList;
+    taskList.push({
+      id: setId,
+      text: inputText,
+      isFinished: false,
+    });
 
     this.setState({
       inputText: "",
-      taskList: newTaskList,
-      tasksLeft: tasksLeft,
+      taskList: taskList,
+      tasksLeft: calcTasksLeft(taskList),
     });
   };
 
   calcTasksLeft = (taskList) => {
-    let taskCounter = 0;
-    taskList.map((task) => {
-      taskCounter = task.isFinished === false ? taskCounter + 1 : taskCounter;
-    });
-    return taskCounter;
+    return taskList.filter((task) => {
+      return task.isFinished === false;
+    }).length;
   };
 
   switchAllTasks = () => {
     const taskList = this.state.taskList;
-    const { ifAllTaskDoneF } = this;
-    let newTaskList;
+    const { areAllTaskDone, calcTasksLeft } = this;
 
-    if (ifAllTaskDoneF(taskList)) {
-      newTaskList = taskList.map((task) => {
-        task.isFinished = false;
-        return task;
-      }); // set all tasks undone
-    } else {
-      newTaskList = taskList.map((task) => {
-        task.isFinished = true;
-        return task;
-      }); // set all tasks done
-    }
-    const tasksLeft = this.calcTasksLeft(newTaskList); // count tasks left
+    let newTaskList = areAllTaskDone(taskList)
+      ? taskList.map((task) => {
+          task.isFinished = false;
+          return task;
+        })
+      : taskList.map((task) => {
+          task.isFinished = true;
+          return task;
+        });
+    // all task undone : all tasks done
 
     this.setState({
       taskList: newTaskList,
-      tasksLeft: tasksLeft,
+      tasksLeft: calcTasksLeft(newTaskList),
     });
   };
 
-  ifAllTaskDoneF = (taskList) => {
-    // return true if all tasks are done | return false when at least task is undone
-    let flag = true;
-    taskList.map((task) => {
-      if (task.isFinished === false) flag = false;
-    });
-    return flag;
+  areAllTaskDone = (taskList) => {
+    return taskList.every((task) => task.isFinished === true);
   };
 
   setDisplayQualifer = (displayQualifer) => {
@@ -219,15 +184,13 @@ class App extends React.Component {
   };
 
   clearCompletedTasks = () => {
-    const taskList = this.state.taskList;
-    let clearedTaskList = [];
-
-    taskList.map((task) => {
-      if (task.isFinished === false) clearedTaskList.push(task);
-    });
+    const { taskList } = this.state;
+    const clearedTaskList = taskList.filter(
+      (task) => task.isFinished === false
+    );
 
     this.setState({
-      taskList: clearedTaskList,
+      taskList: this.assignNewId(clearedTaskList),
     });
   };
 
@@ -236,7 +199,7 @@ class App extends React.Component {
       handleSubmit,
       switchAllTasks,
       handleChange,
-      displayTaskList,
+      manageTaskDisplaying,
       calcTasksLeft,
       setDisplayQualifer,
       clearCompletedTasks,
@@ -257,7 +220,7 @@ class App extends React.Component {
             value={inputText}
             onChange={handleChange}
           ></input>
-          <ul>{displayTaskList(taskList, displayQualifer)}</ul>
+          <ul>{manageTaskDisplaying(taskList, displayQualifer)}</ul>
           <h6>{calcTasksLeft(taskList)} items left</h6>
           <button type="button" onClick={() => setDisplayQualifer("all")}>
             All
