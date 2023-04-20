@@ -28,6 +28,8 @@ class TaskTextEditSwitch extends React.Component {
 
     return task.showEditor ? (
       <input
+        className=""
+        style={{ width: +task.text.length * 17 + "px" }}
         autoFocus
         type="text"
         name="taskEditInput"
@@ -40,6 +42,7 @@ class TaskTextEditSwitch extends React.Component {
       />
     ) : (
       <span
+        style={{ width: +task.text.length * 17 + "px" }}
         className={task.isFinished ? "taskList-taskFinished" : ""}
         onDoubleClick={() => showTaskEditor(task.id)}
       >

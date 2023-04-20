@@ -5,7 +5,11 @@ import TaskTextEditSwitch from "./TaskTextEditSwitch";
 const MarkTaskFinishedBtn = (props) => {
   const { task, markTaskFinished } = props;
   return (
-    <button type="button" onClick={() => markTaskFinished(task.id)}>
+    <button
+      className="markTaskFinishedBtn"
+      type="button"
+      onClick={() => markTaskFinished(task.id)}
+    >
       {task.id + 1}
     </button>
   );
@@ -14,7 +18,11 @@ const MarkTaskFinishedBtn = (props) => {
 const DeleteTaskBtn = (props) => {
   const { task, deleteTask } = props;
   return (
-    <button type="button" onClick={() => deleteTask(task.id)}>
+    <button
+      className="deleteTaskBtn"
+      type="button"
+      onClick={() => deleteTask(task.id)}
+    >
       X
     </button>
   );
@@ -24,9 +32,17 @@ const SingleTask = (props) => {
   const { id } = props.task;
   return (
     <li key={id}>
-      <MarkTaskFinishedBtn {...props} />
-      <TaskTextEditSwitch {...props} />
-      <DeleteTaskBtn {...props} />
+      <div className="li-items-wrapper">
+        <div className="task-finished-btn">
+          <MarkTaskFinishedBtn {...props} />
+        </div>
+        <div className="task-edit-switch">
+          <TaskTextEditSwitch {...props} />
+        </div>
+        <div className="delete-task-btn">
+          <DeleteTaskBtn {...props} />
+        </div>
+      </div>
     </li>
   );
 };
@@ -207,39 +223,54 @@ class App extends React.Component {
     const { inputText, taskList, displayQualifer } = this.state;
 
     return (
-      <div className="App">
-        <form onSubmit={(e) => handleSubmit(e)}>
+      <div className="App appContainer app-container">
+        <div className="header-wrapper">
           <h1>todos</h1>
-          <div className="header-input">
+        </div>
+        <div className="content content-wrapper">
+          <div className="input-wrapper">
             <button
               className="switchAllBtn"
               type="button"
               onClick={switchAllTasks}
             ></button>
-            <input
-              className="tasksInput"
-              name="inputText"
-              type="text"
-              placeholder="What needs to be done?"
-              value={inputText}
-              onChange={handleChange}
-            ></input>
+            <form onSubmit={(e) => handleSubmit(e)}>
+              <input
+                className="tasksInput"
+                name="inputText"
+                type="text"
+                placeholder="What needs to be done?"
+                value={inputText}
+                onChange={handleChange}
+              ></input>
+            </form>
           </div>
-          <ul>{manageTaskDisplaying(taskList, displayQualifer)}</ul>
-          <h6>{calcTasksLeft(taskList)} items left</h6>
-          <button type="button" onClick={() => setDisplayQualifer("all")}>
-            All
-          </button>
-          <button type="button" onClick={() => setDisplayQualifer("active")}>
-            Active
-          </button>
-          <button type="button" onClick={() => setDisplayQualifer("completed")}>
-            Completed
-          </button>
-          <button type="button" onClick={clearCompletedTasks}>
-            Clear completed
-          </button>
-        </form>
+          <div className="task-list-wrapper">
+            <ul className="">
+              {manageTaskDisplaying(taskList, displayQualifer)}
+            </ul>
+          </div>
+          <div className="items-left-wrapper">
+            <h6>{calcTasksLeft(taskList)} items left</h6>
+          </div>
+          <div className="control-buttons-wrapper">
+            <button type="button" onClick={() => setDisplayQualifer("all")}>
+              All
+            </button>
+            <button type="button" onClick={() => setDisplayQualifer("active")}>
+              Active
+            </button>
+            <button
+              type="button"
+              onClick={() => setDisplayQualifer("completed")}
+            >
+              Completed
+            </button>
+            <button type="button" onClick={clearCompletedTasks}>
+              Clear completed
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
