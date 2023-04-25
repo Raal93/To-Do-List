@@ -6,10 +6,8 @@ class TaskTextEditSwitch extends React.Component {
     taskEditInput: this.props.task.text,
   };
 
-  handleChange = (e) => {
-    this.setState({
-      [e.target.name]: e.target.value,
-    });
+  changeText = (newText) => {
+    this.setState({ taskEditInput: newText });
   };
 
   handleKeyDown = (e) => {
@@ -24,7 +22,7 @@ class TaskTextEditSwitch extends React.Component {
   render() {
     const { task, showTaskEditor, saveEditedTask } = this.props;
     const { taskEditInput } = this.state;
-    const { handleChange } = this;
+    const { changeText } = this;
 
     return task.showEditor ? (
       <input
@@ -33,7 +31,7 @@ class TaskTextEditSwitch extends React.Component {
         autoFocus
         type="text"
         name="taskEditInput"
-        onChange={handleChange}
+        onChange={(e) => changeText(e.target.value)}
         value={taskEditInput}
         onBlur={() => saveEditedTask(task.id, taskEditInput)}
         onKeyDown={(e) => {

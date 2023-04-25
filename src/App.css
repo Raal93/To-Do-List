@@ -192,6 +192,8 @@ ul button {
   background-color: darkblue;
   color: yellow;
   border-radius: 5px;
+  height: 22px;
+  line-height: 18px;
 }
 
 body {
@@ -199,5 +201,14 @@ body {
   /* background-color: black; */
 }
 
+.control-buttons-wrapper {
+  display: flex;
+}
 
+.control-buttons-wrapper button {
+  margin-right: 5px;
+  height: 25px;
+  flex-grow: 1;
+  border-radius: 5px;
+}
 

@@ -79,10 +79,8 @@ class App extends React.Component {
     });
   };
 
-  handleChange = (e) => {
-    this.setState({
-      [e.target.name]: e.target.value,
-    });
+  changeText = (newText) => {
+    this.setState({ inputText: newText });
   };
 
   manageTaskDisplaying = (taskList, displayQualifer) => {
@@ -90,10 +88,10 @@ class App extends React.Component {
       case "all":
         break;
       case "active":
-        taskList = taskList.filter((task) => task.isFinished === false);
+        taskList = taskList.filter((task) => !task.isFinished);
         break;
       case "completed":
-        taskList = taskList.filter((task) => task.isFinished === true);
+        taskList = taskList.filter((task) => task.isFinished);
         break;
       default:
         console.log("unknown display qualifer");
@@ -126,16 +124,21 @@ class App extends React.Component {
     });
   };
 
-  deleteTask = (id) => {
-    const { calcTasksLeft } = this;
+  deleteTask = (taskId) => {
+    const { calcTasksLeft, clearTaskList, assignNewId } = this;
     let taskList = this.state.taskList;
-    taskList.splice(id, 1); // delete a task
-    taskList = this.assignNewId(taskList); // sign new id nums
+    taskList = clearTaskList(taskList, taskId);
+    taskList = assignNewId(taskList);
 
     this.setState({
       taskList: taskList,
       tasksLeft: calcTasksLeft(taskList),
     });
+  };
+
+  clearTaskList = (taskList, taskId) => {
+    taskList.splice(taskId, 1);
+    return taskList;
   };
 
   assignNewId = (taskList) => {
@@ -163,16 +166,14 @@ class App extends React.Component {
   };
 
   calcTasksLeft = (taskList) => {
-    return taskList.filter((task) => {
-      return task.isFinished === false;
-    }).length;
+    return taskList.filter((task) => !task.isFinished).length;
   };
 
   switchAllTasks = () => {
     const taskList = this.state.taskList;
     const { areAllTaskDone, calcTasksLeft } = this;
 
-    let newTaskList = areAllTaskDone(taskList)
+    areAllTaskDone(taskList)
       ? taskList.map((task) => {
           task.isFinished = false;
           return task;
@@ -181,16 +182,15 @@ class App extends React.Component {
           task.isFinished = true;
           return task;
         });
-    // all task undone : all tasks done
 
     this.setState({
-      taskList: newTaskList,
-      tasksLeft: calcTasksLeft(newTaskList),
+      taskList: taskList,
+      tasksLeft: calcTasksLeft(taskList),
     });
   };
 
   areAllTaskDone = (taskList) => {
-    return taskList.every((task) => task.isFinished === true);
+    return taskList.every((task) => task.isFinished);
   };
 
   setDisplayQualifer = (displayQualifer) => {
@@ -201,9 +201,7 @@ class App extends React.Component {
 
   clearCompletedTasks = () => {
     const { taskList } = this.state;
-    const clearedTaskList = taskList.filter(
-      (task) => task.isFinished === false
-    );
+    const clearedTaskList = taskList.filter((task) => !task.isFinished);
 
     this.setState({
       taskList: this.assignNewId(clearedTaskList),
@@ -214,7 +212,7 @@ class App extends React.Component {
     const {
       handleSubmit,
       switchAllTasks,
-      handleChange,
+      changeText,
       manageTaskDisplaying,
       calcTasksLeft,
       setDisplayQualifer,
@@ -234,14 +232,14 @@ class App extends React.Component {
               type="button"
               onClick={switchAllTasks}
             ></button>
-            <form onSubmit={(e) => handleSubmit(e)}>
+            <form onSubmit={handleSubmit}>
               <input
                 className="tasksInput"
                 name="inputText"
                 type="text"
                 placeholder="What needs to be done?"
                 value={inputText}
-                onChange={handleChange}
+                onChange={(e) => changeText(e.target.value)}
               ></input>
             </form>
           </div>
