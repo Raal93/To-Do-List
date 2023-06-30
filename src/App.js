@@ -1,46 +1,53 @@
 import React from "react";
 import "./App.css";
-import TaskTextEditSwitch from "./TaskTextEditSwitch";
+import TodoTextEditSwitch from "./TodoTextEditSwitch";
+import {
+  dbUpdateGetData,
+  dbUpdateAddTodo,
+  dbUpdateMarkFinished,
+  dbUpdateEditTodo,
+  dbUpdateDeleteTodo,
+} from "./TodosService.js";
 
-const MarkTaskFinishedBtn = (props) => {
-  const { task, markTaskFinished } = props;
+const MarkTodoFinishedBtn = (props) => {
+  const { todo, markTodoFinished } = props;
   return (
     <button
-      className="markTaskFinishedBtn"
+      className="markTodoFinishedBtn"
       type="button"
-      onClick={() => markTaskFinished(task.id)}
+      onClick={() => markTodoFinished(todo.id)}
     >
-      {task.id + 1}
+      {todo.id + 1}
     </button>
   );
 };
 
-const DeleteTaskBtn = (props) => {
-  const { task, deleteTask } = props;
+const DeleteTodoBtn = (props) => {
+  const { todo, deleteTodo } = props;
   return (
     <button
-      className="deleteTaskBtn"
+      className="deleteTodoBtn"
       type="button"
-      onClick={() => deleteTask(task.id)}
+      onClick={() => deleteTodo(todo.id)}
     >
       X
     </button>
   );
 };
 
-const SingleTask = (props) => {
-  const { id } = props.task;
+const SingleTodo = (props) => {
+  const { id } = props.todo;
   return (
     <li key={id}>
       <div className="li-items-wrapper">
-        <div className="task-finished-btn">
-          <MarkTaskFinishedBtn {...props} />
+        <div className="todo-finished-btn">
+          <MarkTodoFinishedBtn {...props} />
         </div>
-        <div className="task-edit-switch">
-          <TaskTextEditSwitch {...props} />
+        <div className="todo-edit-switch">
+          <TodoTextEditSwitch {...props} />
         </div>
-        <div className="delete-task-btn">
-          <DeleteTaskBtn {...props} />
+        <div className="delete-todo-btn">
+          <DeleteTodoBtn {...props} />
         </div>
       </div>
     </li>
@@ -50,109 +57,138 @@ const SingleTask = (props) => {
 class App extends React.Component {
   state = {
     inputText: "",
-    tasksLeft: 3,
+    todosLeft: 1,
     displayQualifer: "all",
-    taskEditInput: "",
-    taskList: [
-      { id: 0, text: "example task 1", isFinished: false, showEditor: false },
-      { id: 1, text: "task 2", isFinished: true, showEditor: false },
-      { id: 2, text: "example 3", isFinished: false, showEditor: false },
-    ],
+    todoEditInput: "",
+    todoList: [],
   };
 
-  showTaskEditor = (id) => {
-    let taskList = this.state.taskList;
-    taskList[id].showEditor = true;
+  componentDidMount() {
+    this.getTodos();
+  }
+
+  getTodos = () => {
+    dbUpdateGetData()
+      .then((response) => {
+        this.setState({ todoList: this.newTodoList(response.todos) });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  newTodoList = (todos) => {
+    return todos.map((element, index) => this.newListItem(element, index));
+  };
+
+  newListItem = (element, index) => {
+    return {
+      dbId: element.id,
+      id: index,
+      text: element.todo,
+      isFinished: element.completed,
+      showEditor: false,
+    };
+  };
+
+  showTodoEditor = (id) => {
+    let todoList = this.state.todoList;
+    todoList[id].showEditor = true;
 
     this.setState({
-      taskList: taskList,
+      todoList: todoList,
     });
   };
 
-  saveEditedTask = (id, editedText) => {
-    let taskList = this.state.taskList;
-    taskList[id].showEditor = false;
-    taskList[id].text = editedText;
+  saveEditedTodo = (id, editedText) => {
+    let todoList = this.state.todoList;
+    todoList[id].showEditor = false;
+    todoList[id].text = editedText;
 
     this.setState({
-      taskList: taskList,
+      todoList: todoList,
     });
+
+    dbUpdateEditTodo(todoList[id].dbId, editedText);
   };
 
   changeText = (newText) => {
     this.setState({ inputText: newText });
   };
 
-  manageTaskDisplaying = (taskList, displayQualifer) => {
+  manageTodoDisplaying = (todoList, displayQualifer) => {
     switch (displayQualifer) {
       case "all":
         break;
       case "active":
-        taskList = taskList.filter((task) => !task.isFinished);
+        todoList = todoList.filter((todo) => !todo.isFinished);
         break;
       case "completed":
-        taskList = taskList.filter((task) => task.isFinished);
+        todoList = todoList.filter((todo) => todo.isFinished);
         break;
       default:
         console.log("unknown display qualifer");
     }
-    return this.displayTaskList(taskList);
+    return this.displayTodoList(todoList);
   };
 
-  displayTaskList = (currentDisplayList) => {
-    return currentDisplayList.map((task) => (
-      <SingleTask
-        task={task}
-        key={task.id}
-        taskList={this.state.taskList}
-        markTaskFinished={this.markTaskFinished}
-        deleteTask={this.deleteTask}
-        showTaskEditor={this.showTaskEditor}
-        saveEditedTask={this.saveEditedTask}
+  displayTodoList = (currentDisplayList) => {
+    return currentDisplayList.map((todo) => (
+      <SingleTodo
+        todo={todo}
+        key={todo.id}
+        todoList={this.state.todoList}
+        markTodoFinished={this.markTodoFinished}
+        deleteTodo={this.deleteTodo}
+        showTodoEditor={this.showTodoEditor}
+        saveEditedTodo={this.saveEditedTodo}
       />
     ));
   };
 
-  markTaskFinished = (id) => {
-    const { calcTasksLeft } = this;
-    let taskList = this.state.taskList;
-    taskList[id].isFinished = !taskList[id].isFinished;
+  markTodoFinished = (id) => {
+    const { calcTodosLeft } = this;
+    let todoList = this.state.todoList;
+    todoList[id].isFinished = !todoList[id].isFinished;
 
     this.setState({
-      taskList: taskList,
-      tasksLeft: calcTasksLeft(taskList),
+      todoList: todoList,
+      todosLeft: calcTodosLeft(todoList),
+    });
+
+    dbUpdateMarkFinished(todoList[id].dbId, todoList[id].isFinished); // inner Id doesn't match with db Id
+  };
+
+  deleteTodo = (id) => {
+    const { calcTodosLeft, clearTodoList, assignNewId } = this;
+    let todoList = this.state.todoList;
+    dbUpdateDeleteTodo(todoList[id].dbId);
+    todoList = clearTodoList(todoList, id);
+    todoList = assignNewId(todoList);
+
+    this.setState({
+      todoList: todoList,
+      todosLeft: calcTodosLeft(todoList),
     });
   };
 
-  deleteTask = (taskId) => {
-    const { calcTasksLeft, clearTaskList, assignNewId } = this;
-    let taskList = this.state.taskList;
-    taskList = clearTaskList(taskList, taskId);
-    taskList = assignNewId(taskList);
-
-    this.setState({
-      taskList: taskList,
-      tasksLeft: calcTasksLeft(taskList),
-    });
+  clearTodoList = (todoList, id) => {
+    todoList.splice(id, 1);
+    return todoList;
   };
 
-  clearTaskList = (taskList, taskId) => {
-    taskList.splice(taskId, 1);
-    return taskList;
+  assignNewId = (todoList) => {
+    todoList.forEach((todo, id) => (todo.id = id));
+    return todoList;
   };
 
-  assignNewId = (taskList) => {
-    taskList.forEach((task, id) => (task.id = id));
-    return taskList;
-  };
-
-  handleSubmit = (e) => {
+  addTodo = (e) => {
     e.preventDefault();
     const { inputText } = this.state;
-    const { calcTasksLeft } = this;
-    const setId = this.state.taskList.length;
-    let taskList = this.state.taskList;
-    taskList.push({
+    const { calcTodosLeft } = this;
+    const setId = this.state.todoList.length;
+    let todoList = this.state.todoList;
+    todoList.push({
       id: setId,
       text: inputText,
       isFinished: false,
@@ -160,37 +196,39 @@ class App extends React.Component {
 
     this.setState({
       inputText: "",
-      taskList: taskList,
-      tasksLeft: calcTasksLeft(taskList),
+      todoList: todoList,
+      todosLeft: calcTodosLeft(todoList),
     });
+
+    dbUpdateAddTodo(inputText);
   };
 
-  calcTasksLeft = (taskList) => {
-    return taskList.filter((task) => !task.isFinished).length;
+  calcTodosLeft = (todoList) => {
+    return todoList.filter((todo) => !todo.isFinished).length;
   };
 
-  switchAllTasks = () => {
-    const taskList = this.state.taskList;
-    const { areAllTaskDone, calcTasksLeft } = this;
+  switchAllTodos = () => {
+    const todoList = this.state.todoList;
+    const { areAllTodoDone, calcTodosLeft } = this;
 
-    areAllTaskDone(taskList)
-      ? taskList.map((task) => {
-          task.isFinished = false;
-          return task;
+    areAllTodoDone(todoList)
+      ? todoList.map((todo) => {
+          todo.isFinished = false;
+          return todo;
         })
-      : taskList.map((task) => {
-          task.isFinished = true;
-          return task;
+      : todoList.map((todo) => {
+          todo.isFinished = true;
+          return todo;
         });
 
     this.setState({
-      taskList: taskList,
-      tasksLeft: calcTasksLeft(taskList),
+      todoList: todoList,
+      todosLeft: calcTodosLeft(todoList),
     });
   };
 
-  areAllTaskDone = (taskList) => {
-    return taskList.every((task) => task.isFinished);
+  areAllTodoDone = (todoList) => {
+    return todoList.every((todo) => todo.isFinished);
   };
 
   setDisplayQualifer = (displayQualifer) => {
@@ -199,26 +237,26 @@ class App extends React.Component {
     });
   };
 
-  clearCompletedTasks = () => {
-    const { taskList } = this.state;
-    const clearedTaskList = taskList.filter((task) => !task.isFinished);
+  clearCompletedTodos = () => {
+    const { todoList } = this.state;
+    const clearedTodoList = todoList.filter((todo) => !todo.isFinished);
 
     this.setState({
-      taskList: this.assignNewId(clearedTaskList),
+      todoList: this.assignNewId(clearedTodoList),
     });
   };
 
   render() {
     const {
-      handleSubmit,
-      switchAllTasks,
+      addTodo,
+      switchAllTodos,
       changeText,
-      manageTaskDisplaying,
-      calcTasksLeft,
+      manageTodoDisplaying,
+      calcTodosLeft,
       setDisplayQualifer,
-      clearCompletedTasks,
+      clearCompletedTodos,
     } = this;
-    const { inputText, taskList, displayQualifer } = this.state;
+    const { inputText, todoList, displayQualifer } = this.state;
 
     return (
       <div className="App appContainer app-container">
@@ -230,11 +268,11 @@ class App extends React.Component {
             <button
               className="switchAllBtn"
               type="button"
-              onClick={switchAllTasks}
+              onClick={switchAllTodos}
             ></button>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={addTodo}>
               <input
-                className="tasksInput"
+                className="todosInput"
                 name="inputText"
                 type="text"
                 placeholder="What needs to be done?"
@@ -243,13 +281,13 @@ class App extends React.Component {
               ></input>
             </form>
           </div>
-          <div className="task-list-wrapper">
+          <div className="todo-list-wrapper">
             <ul className="">
-              {manageTaskDisplaying(taskList, displayQualifer)}
+              {manageTodoDisplaying(todoList, displayQualifer)}
             </ul>
           </div>
           <div className="items-left-wrapper">
-            <h6>{calcTasksLeft(taskList)} items left</h6>
+            <h6>{calcTodosLeft(todoList)} items left</h6>
           </div>
           <div className="control-buttons-wrapper">
             <button type="button" onClick={() => setDisplayQualifer("all")}>
@@ -264,7 +302,7 @@ class App extends React.Component {
             >
               Completed
             </button>
-            <button type="button" onClick={clearCompletedTasks}>
+            <button type="button" onClick={clearCompletedTodos}>
               Clear completed
             </button>
           </div>

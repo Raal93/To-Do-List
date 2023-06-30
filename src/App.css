@@ -6,7 +6,7 @@
 
 .appContainer {
   background-color: rgb(235, 238, 246);
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items:center
@@ -20,14 +20,24 @@
   align-items: center;
 }
 
-.task-finished-btn, .task-edit-switch, .delete-task-btn {
+.li-items-wrapper:hover {
+  background-color: lightblue;
+  color: black;
+}
+
+.todo-finished-btn, .todo-edit-switch, .delete-todo-btn {
   display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
 }
 
-.task-edit-switch {
+.delete-todo-btn {
+  justify-self: flex-end;
+  /* align-self: flex-end; */
+}
+
+.todo-edit-switch {
   display: flex;
 }
 
@@ -46,12 +56,12 @@
 
 
 
-.task-list-wrapper ul>li>div>div {
+.todo-list-wrapper ul>li>div>div {
   /* background-color: aqua; */
   
 }
 
-.task-list-wrapper ul>li>div input {
+.todo-list-wrapper ul>li>div input {
   /* background-color: bisque; */
   border: none;
   text-align: center;
@@ -68,58 +78,68 @@
   /* user-select: none; */
 }
 
-.task-list-wrapper ul>li>div input:focus {
+.todo-list-wrapper ul>li>div input:focus {
   /* background-color: red; */
   border: none;
   text-decoration: underline;
 }
 
-.task-list-wrapper ul>li>div span {
+.todo-list-wrapper ul>li>div span {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 40px;
-  max-width: 300px;
-  /* user-select: none; */
+  /* height: 40px; */
+  max-width: 400px;
+  font-size: 22px;
+  /* padding-bottom: 10px; */
+  /* text-align: left; */
+  width: 100%;
+  display: block;
+
+  border-bottom-color: black;
+    border-bottom-style: dashed;
+    border-bottom-width: 1px;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
 }
 
-.taskList {
+.todoList {
   /* background-color: aquamarine; */
   /* width: 80%; */
   padding: 0;
   /* height: 300px; */
 }
 
-.taskList li {
+.todoList li {
   /* display: flex;
   flex-direction: row;
   align-items: center; */
   /* align-content: space-between; */
 }
 
-.deleteTaskBtn {
+.deleteTodoBtn {
   /* flex-grow: 1; */
 }
 
-.singleTaskContent {
+.singleTodoContent {
   /* flex-grow: 8; */
   /* display: inline-block; */
 }
 
-.markTaskFinishedBtn {
+.markTodoFinishedBtn {
   /* flex-grow: 1; */
 }
 
-.taskEditorWrapper {
+.todoEditorWrapper {
   /* display: inline-block; */
 }
 
-.taskEditorWrapper span {
+.todoEditorWrapper span {
   display: block;
   width: 100%;
 }
 
-.taskList input {
+.todoList input {
   font-size: 30px;
   color: inherit;
   /* background-color: inherit; */
@@ -128,11 +148,11 @@
  width: 100%;
 }
 
-/* .taskInput {
+/* .todoInput {
   display: inline !important;
 } */
 
-.taskList-taskFinished {
+.todoList-todoFinished {
   color: lightgray;
   text-decoration: line-through;
 }
@@ -166,7 +186,7 @@
 }
 
 
-.tasksInput {
+.todosInput {
   height: 50px;
   width: 250px;
   border-radius: 6px;
