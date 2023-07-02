@@ -71,7 +71,7 @@ class App extends React.Component {
     fetch("https://dummyjson.com/todos?limit=8")
       .then((response) => {
         if (response.ok) return response.json();
-        throw Error("customowy error");
+        throw Error(response.status);
       })
       .then((response) => {
         this.setState({ todoList: this.newTodoList(response.todos) });

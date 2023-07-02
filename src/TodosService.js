@@ -1,4 +1,12 @@
-// import React from "react";
+import React from "react";
+class DbUpdateGetData extends React.Component {
+  state = {};
+
+  render() {
+    return;
+  }
+}
+export default DbUpdateGetData;
 
 // export const dbUpdateGetData = async () => {
 //   const response = await fetch("https://dummyjson.com/todos?limit=8");
