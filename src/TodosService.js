@@ -1,11 +1,11 @@
 // import React from "react";
 
-export const dbUpdateGetData = async () => {
-  const response = await fetch("https://dummyjson.com/todos?limit=8");
+// export const dbUpdateGetData = async () => {
+//   const response = await fetch("https://dummyjson.com/todos?limit=8");
 
-  if (response.ok) return response.json();
-  throw Error(response.status);
-};
+//   if (response.ok) return response.json();
+//   throw Error(response.status);
+// };
 
 export const dbUpdateAddTodo = (inputText) => {
   fetch("https://dummyjson.com/todos/add", {
@@ -89,3 +89,7 @@ export const dbUpdateDeleteTodo = (id) => {
       console.log(error);
     });
 };
+
+// Cel: Chcę przenieść do pliku TodosService.js funkcję dbUpdateGetData zajmującą się pobieraniem listy zadań z bazy danych.
+
+// Napotkany problem:
