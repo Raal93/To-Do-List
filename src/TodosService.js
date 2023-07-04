@@ -1,19 +1,20 @@
-import React from "react";
-class DbUpdateGetData extends React.Component {
-  state = {};
-
-  render() {
-    return;
+const handleError = (response) => {
+  if (!response.ok) {
+    throw Error(response.status + " " + response.statusText);
+  } else {
+    return response.json();
   }
-}
-export default DbUpdateGetData;
+};
 
-// export const dbUpdateGetData = async () => {
-//   const response = await fetch("https://dummyjson.com/todos?limit=8");
-
-//   if (response.ok) return response.json();
-//   throw Error(response.status);
-// };
+export const getTodos = async () => {
+  try {
+    const response = await fetch("https://dummyjson.com/todos?limit=8");
+    const data = await handleError(response);
+    return data.todos;
+  } catch (message) {
+    return console.log(message);
+  }
+};
 
 export const dbUpdateAddTodo = (inputText) => {
   fetch("https://dummyjson.com/todos/add", {

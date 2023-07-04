@@ -2,7 +2,7 @@ import React from "react";
 import "./App.css";
 import TodoTextEditSwitch from "./TodoTextEditSwitch";
 import {
-  // dbUpdateGetData,
+  getTodos,
   dbUpdateAddTodo,
   dbUpdateMarkFinished,
   dbUpdateEditTodo,
@@ -64,21 +64,14 @@ class App extends React.Component {
   };
 
   componentDidMount() {
-    this.getTodos();
+    this.getData();
   }
 
-  getTodos = () => {
-    fetch("https://dummyjson.com/todos?limit=8")
-      .then((response) => {
-        if (response.ok) return response.json();
-        throw Error(response.status);
-      })
-      .then((response) => {
-        this.setState({ todoList: this.newTodoList(response.todos) });
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+  getData = () => {
+    const promise = getTodos();
+    promise.then((data) => {
+      this.setState({ todoList: this.newTodoList(data) });
+    });
   };
 
   newTodoList = (todos) => {
