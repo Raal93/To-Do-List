@@ -1,16 +1,15 @@
 {
   "files": {
-    "main.css": "/To-Do-List/static/css/main.d307b956.css",
-    "main.js": "/To-Do-List/static/js/main.78edf232.js",
-    "static/js/787.34d05ddd.chunk.js": "/To-Do-List/static/js/787.34d05ddd.chunk.js",
-    "static/media/tick-icon.jpg": "/To-Do-List/static/media/tick-icon.e7a33b333409703c9351.jpg",
-    "index.html": "/To-Do-List/index.html",
-    "main.d307b956.css.map": "/To-Do-List/static/css/main.d307b956.css.map",
-    "main.78edf232.js.map": "/To-Do-List/static/js/main.78edf232.js.map",
-    "787.34d05ddd.chunk.js.map": "/To-Do-List/static/js/787.34d05ddd.chunk.js.map"
+    "main.css": "/vocab-trainer/static/css/main.073c9b0a.css",
+    "main.js": "/vocab-trainer/static/js/main.16c9eacb.js",
+    "static/js/787.fe40f555.chunk.js": "/vocab-trainer/static/js/787.fe40f555.chunk.js",
+    "index.html": "/vocab-trainer/index.html",
+    "main.073c9b0a.css.map": "/vocab-trainer/static/css/main.073c9b0a.css.map",
+    "main.16c9eacb.js.map": "/vocab-trainer/static/js/main.16c9eacb.js.map",
+    "787.fe40f555.chunk.js.map": "/vocab-trainer/static/js/787.fe40f555.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.d307b956.css",
-    "static/js/main.78edf232.js"
+    "static/css/main.073c9b0a.css",
+    "static/js/main.16c9eacb.js"
   ]
 }
